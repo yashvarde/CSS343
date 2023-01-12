@@ -4,7 +4,7 @@
 
 IntSet::IntSet(int a, int b, int c, int d, int e)
 {
-    //find maximum value of arguments
+    //find maximum value of all arguments
     int max = 0;
     max = std::max(a, b);
     max = std::max(max, c);
@@ -15,7 +15,13 @@ IntSet::IntSet(int a, int b, int c, int d, int e)
     size = max + 1;
     arraySet = new bool[size];
 
-    //attempt to insert values
+    //initialize all values to false (empty set)
+    for (int i = 0; i < size; i++)
+    {
+        arraySet[i] = false;
+    }
+
+    //attempt to insert each of the arguments
     insert(a);
     insert(b);
     insert(c);
@@ -47,8 +53,11 @@ IntSet& IntSet::operator=(const IntSet& source)
         return *this;
     }
 
-    //delete current array
-    delete[] arraySet;
+    //delete current array set if it contains elements
+    if (arraySet != nullptr && size > 0)
+    {
+        delete[] arraySet;
+    }
     
     //allocate array to be equal size of source 
     int sourceSize = source.getSize();
@@ -121,7 +130,7 @@ bool IntSet::operator!=(const IntSet& other)
 bool IntSet::insert(int x)
 {
     //check whether int is within range
-    if (isInSet(x))          
+    if (isWithinRange(x))          
     {
         //set given index to true
         arraySet[x] = true;
@@ -212,8 +221,8 @@ bool IntSet::isEmpty() const
 
 bool IntSet::isInSet(int x) const
 {
-    //value must be an integer between 0 (included) and the size (excluded)
-    return x >= 0 && x < size;
+    //must be within the range of the set, and the given index must be true
+    return isWithinRange(x) && arraySet[x];
 }
 
 //---------------------------------------------------------------------------
@@ -245,7 +254,7 @@ bool IntSet::containsSet(const IntSet& subset) const
 bool IntSet::operator[] (int x) const
 {
     //return element if it is in the set.
-    if (isInSet(x))
+    if (isWithinRange(x))
     {
         return arraySet[x];
     }
@@ -263,7 +272,7 @@ int IntSet::getSize() const
 
 //---------------------------------------------------------------------------
 
-IntSet& IntSet::copy(const IntSet& source, IntSet& dest)
+IntSet& IntSet::copy(const IntSet& source, IntSet* dest)
 {
     //have a variable for the source size
     int sourceSize = source.getSize();
@@ -272,14 +281,22 @@ IntSet& IntSet::copy(const IntSet& source, IntSet& dest)
     for (int i = 0; i < sourceSize; i++)
     {
         // only copy if value is not already present in dest
-        if (!dest[i])
+        if (!dest->arraySet[i] && source[i])
         {
-            dest.arraySet[i] = source[i];
+            dest->insert(i);
         }
     }
 
     //return reference to modified int set
-    return dest;
+    return *dest;
+}
+
+//---------------------------------------------------------------------------
+
+bool IntSet::isWithinRange(int x) const
+{
+    //value must be an integer between 0 (included) and the size (excluded)
+    return x >= 0 && x < size;
 }
 
 //---------------------------------------------------------------------------
@@ -290,10 +307,10 @@ IntSet operator+(const IntSet& first, const IntSet& second)
     IntSet* retVal = new IntSet();
 
     //copy elements from first into retVal
-    *retVal = (first, *retVal);
+    retVal->copy(first, retVal);
 
     //copy elements from second into retVal
-    *retVal = (second, *retVal);
+    retVal->copy(second, retVal);
     
     //return IntSet
     return *retVal;
@@ -332,20 +349,15 @@ IntSet operator-(const IntSet& first, const IntSet& second)
     //create a pointer to a new int set
     IntSet* retVal = new IntSet();
 
-    //keep track of first array size
+    //determine size of first and second array
     int firstSize = first.getSize();
-
-    //do not subtract if first does not contain second
-    if (!first.containsSet(second))
-    {
-        return *retVal;
-    }
+    int secondSize = second.getSize();
 
     //iterate through first array 
     for (int i = 0; i < firstSize; i++)
     {
         //skip elements that do occur in the second
-        if (second[i])
+        if (i < secondSize && second[i])
         {
             continue;
         }
@@ -362,13 +374,17 @@ IntSet operator-(const IntSet& first, const IntSet& second)
 
 istream& operator>>(istream& stream, IntSet& intSet)
 {
-    //size of int set will change as more elements get inserted
-    for (int i = 0; i < intSet.getSize(); i++)
+    //keep inserting into int set as long as the stream contains input
+    int x = 0;
+    do
     {
-        int x;
         stream >> x;
-        intSet.insert(x);
-    }
+        if (x != -1)
+        {
+            intSet.insert(x);
+        }
+    } 
+    while (x != -1);
 
     return stream;
 }
@@ -377,14 +393,21 @@ istream& operator>>(istream& stream, IntSet& intSet)
 
 ostream& operator<<(ostream& stream, const IntSet& intSet)
 {
+    //opening curly bracket
     int size = intSet.getSize();
     stream << "{";
 
+    //space followed by each element of the set
     for (int i = 0; i < size; i++)
-    {
-        stream << " " << intSet[i];
+    {   
+        //only true indexes will be added to stream
+        if (intSet[i])
+        {
+            stream << " " << i;
+        }
     }
 
+    //closing curly bracket
     stream << "}" << "\n";
 
     return stream;

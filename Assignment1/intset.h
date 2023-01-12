@@ -9,12 +9,13 @@ using namespace std;
 // ADT IntSet:
 // 
 // Implementation and Assumptions:
+// -- inputs are integers
 //---------------------------------------------------------------------------
 class IntSet
 { 
     //arithmetic operators
-    friend IntSet operator + (const IntSet&, const IntSet&);
-    friend IntSet operator * (const IntSet&, const IntSet&);
+    friend IntSet operator + (const IntSet&, const IntSet&);    
+    friend IntSet operator * (const IntSet&, const IntSet&);    
     friend IntSet operator - (const IntSet&, const IntSet&);
 
     //stream operators
@@ -60,6 +61,7 @@ private:
     int size;
 
     //helper methods
-    IntSet& copy(const IntSet&, IntSet&);
+    IntSet& copy(const IntSet&, IntSet*);
+    bool isWithinRange(int) const;
 };
 #endif
