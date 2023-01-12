@@ -32,6 +32,16 @@ IntSet::IntSet(int a, int b, int c, int d, int e)
 //---------------------------------------------------------------------------
 IntSet::IntSet(const IntSet& source)
 {
+    //create a new array with same size as the source
+    int size = source.getSize();
+    arraySet = new bool[size];
+
+    //initialize all values to false (empty set)
+    for (int i = 0; i < size; i++)
+    {
+        arraySet[i] = false;
+    }
+
     //call the assignment operator
     *this = source;
 }
@@ -53,10 +63,15 @@ IntSet& IntSet::operator=(const IntSet& source)
         return *this;
     }
 
-    //delete current array set if it contains elements
-    if (arraySet != nullptr && size > 0)
+    //nullify the array set pointer
+    if (arraySet != nullptr)
     {
-        delete[] arraySet;
+        //delete current array set if it contains elements
+        if (size > 0)
+        {
+            delete[] arraySet;
+        }
+        arraySet = nullptr;
     }
     
     //allocate array to be equal size of source 
@@ -354,7 +369,8 @@ IntSet operator-(const IntSet& first, const IntSet& second)
     int secondSize = second.getSize();
 
     //iterate through first array 
-    for (int i = 0; i < firstSize; i++)
+    int i;
+    for (i = 0; i < firstSize; i++)
     {
         //skip elements that do occur in the second
         if (i < secondSize && second[i])
@@ -365,7 +381,7 @@ IntSet operator-(const IntSet& first, const IntSet& second)
         //insert elements that do not occur in second
         retVal->insert(i);
     }
-
+    retVal->size = i;
     //return IntSet
     return *retVal;
 }
