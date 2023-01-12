@@ -17,18 +17,18 @@ int main() {
     IntSet A(9), B(15, 3), C(10, 5, 8), D(12, 5, 10, 12, -500), E, X(D), Y;
 
     // sets A and B acquire desired values
-    // A = { 3 7 9}
-    // B = { 3 5 9 12 15}
+    //A = { 3 7 9 }
+    //B = { 3 5 9 12 15 }
     cout << "Enter ints for set A:  " << endl;
     cin >> A;
     cout << "Enter ints for set B:  " << endl;
     cin >> B;
-    // As a shortcut when testing, you can use insert to avoid typing each time
-    // A.insert(3);
-    // A.insert(7);
-    // B.insert(5);
-    // B.insert(9);
-    // B.insert(12);
+    //As a shortcut when testing, you can use insert to avoid typing each time
+    //A.insert(3);
+    //A.insert(7);
+    //B.insert(5);
+    //B.insert(9);
+    //B.insert(12);
 
     cout << "A = " << A << endl;               // outputs: A = { 3 7 9}
     cout << "B = " << B << endl << endl;       // outputs: B = { 3 5 9 12 15}
@@ -48,7 +48,7 @@ int main() {
     cout << "Compute  D = (A * B) + D" << endl;
     cout << "Before: D = " << D;                            // D = { 5 10 12}
     D = (A * B) + D;
-    cout << "    After: " << "D = " << D << endl << endl;   // D = { 3 5 9 10 12}
+    cout << "After: " << "D = " << D << endl << endl;   // D = { 3 5 9 10 12}
 
     cout << "Test assignment operators" << endl;
     X = C = D = D;

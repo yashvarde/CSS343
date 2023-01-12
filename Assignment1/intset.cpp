@@ -185,38 +185,7 @@ bool IntSet::remove(int x)
     //check whether array contains elements and given index is in set
     if (!isEmpty() && isInSet(x))
     {
-        //check whether x is the maximum value
-        if (x == size - 1)
-        {
-            //search for second largest int in array
-            int newMax = 0;
-            for (int i = size - 1; i >= 0; i--)
-            {
-                if (i != x && arraySet[i])
-                {
-                    newMax = i;
-                    break;
-                }
-            }
-
-            //create a new array with size (newMax + 1)
-            size = newMax + 1;
-            bool* newArraySet = new bool[size];
-            
-
-            //copy values from existing array into new array 
-            for (int i = 0; i < size; i++)
-            {
-                newArraySet[i] = arraySet[i];
-            }
-
-            //deallocate memory and reassign array pointer
-            delete[] arraySet;
-            arraySet = newArraySet;
-            return true;
-        }
-
-        //x can be easily removed without changing the size of the set
+        //remove element
         arraySet[x] = false;
         return true;
     }
@@ -318,8 +287,14 @@ bool IntSet::isWithinRange(int x) const
 
 IntSet operator+(const IntSet& first, const IntSet& second)
 {
-    //create a pointer to a new int set
-    IntSet* retVal = new IntSet();
+    //find larger of the two int sets
+    int firstSize = first.getSize();
+    int secondSize = second.getSize();
+    int retValSize = max(firstSize, secondSize);
+
+    //create a pointer to an int set with this size
+    IntSet* retVal = new IntSet(retValSize - 1);
+    retVal->arraySet[retValSize - 1] = false;
 
     //copy elements from first into retVal
     retVal->copy(first, retVal);
@@ -338,12 +313,13 @@ IntSet operator*(const IntSet& first, const IntSet& second)
     //determine minimum of both IntSet sizes
     int firstSize = first.getSize();
     int secondSize = second.getSize();
-    int minSize = std::min(firstSize, secondSize);
+    int minSize = min(firstSize, secondSize);
 
-    //create a pointer to a new int set
-    IntSet* retVal = new IntSet();
+    //create a pointer to a new int set with the minimum size
+    IntSet* retVal = new IntSet(minSize - 1);
+    retVal->arraySet[minSize - 1] = false;
 
-    //iterate up until minSize; both will contain values up until this size
+    //Fill in retVal
     for (int i = 0; i < minSize; i++)
     {
         //add element only if it exists in both int sets
@@ -351,8 +327,13 @@ IntSet operator*(const IntSet& first, const IntSet& second)
         {
             retVal->insert(i);
         }
+        else
+        {
+            //skip elements that are not in both sets
+            retVal->arraySet[i] = false;
+        }
     }
-
+    
     //return IntSet 
     return *retVal;
 }
@@ -361,27 +342,28 @@ IntSet operator*(const IntSet& first, const IntSet& second)
 
 IntSet operator-(const IntSet& first, const IntSet& second)
 {
-    //create a pointer to a new int set
-    IntSet* retVal = new IntSet();
-
     //determine size of first and second array
     int firstSize = first.getSize();
     int secondSize = second.getSize();
 
+    //create a pointer to a new int set of the same size as first
+    IntSet* retVal = new IntSet(firstSize - 1);
+    retVal->arraySet[firstSize - 1] = false;
+
     //iterate through first array 
-    int i;
-    for (i = 0; i < firstSize; i++)
+    for (int i = 0; i < firstSize; i++)
     {
-        //skip elements that do occur in the second
-        if (i < secondSize && second[i])
+        //skip elements that do occur in the second or are not in the first
+        if ((i < secondSize && second[i]) || !first[i])
         {
+            retVal->arraySet[i] = false;
             continue;
         }
 
         //insert elements that do not occur in second
         retVal->insert(i);
     }
-    retVal->size = i;
+    
     //return IntSet
     return *retVal;
 }
