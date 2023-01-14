@@ -1,3 +1,5 @@
+// an IntSet object holds positive integer values including zero.
+
 #include "intset.h"
 
 //---------------------------------------------------------------------------
@@ -46,6 +48,8 @@ IntSet::IntSet(const IntSet& source)
     *this = source;
 }
 
+//---------------------------------------------------------------------------
+
 IntSet::~IntSet()
 {
     delete[] arraySet;
@@ -66,12 +70,9 @@ IntSet& IntSet::operator=(const IntSet& source)
     //nullify the array set pointer
     if (arraySet != nullptr)
     {
-        //delete current array set if it contains elements
-        if (size > 0)
-        {
-            delete[] arraySet;
-        }
+        delete[] arraySet;
         arraySet = nullptr;
+        size = 0;
     }
     
     //allocate array to be equal size of source 
@@ -115,7 +116,7 @@ IntSet& IntSet::operator-=(const IntSet& other)
 
 //---------------------------------------------------------------------------
 
-bool IntSet::operator==(const IntSet& other)
+bool IntSet::operator==(const IntSet& other) const
 {
     //check whether the memory locations are equal
     if (this == &other)
@@ -135,7 +136,7 @@ bool IntSet::operator==(const IntSet& other)
 
 //---------------------------------------------------------------------------
 
-bool IntSet::operator!=(const IntSet& other)
+bool IntSet::operator!=(const IntSet& other) const
 {
     return !(*this == other);
 }
@@ -302,8 +303,13 @@ IntSet operator+(const IntSet& first, const IntSet& second)
     //copy elements from second into retVal
     retVal->copy(second, retVal);
     
+    //save the IntSet in another variable, and delete the retVal pointer
+    IntSet rv = *retVal;
+    delete retVal;
+    retVal = nullptr;
+
     //return IntSet
-    return *retVal;
+    return rv;
 }
 
 //---------------------------------------------------------------------------
@@ -333,9 +339,14 @@ IntSet operator*(const IntSet& first, const IntSet& second)
             retVal->arraySet[i] = false;
         }
     }
+
+    //save the IntSet in another variable, and delete the retVal pointer
+    IntSet rv = *retVal;
+    delete retVal;
+    retVal = nullptr;
     
     //return IntSet 
-    return *retVal;
+    return rv;
 }
 
 //---------------------------------------------------------------------------
@@ -364,8 +375,13 @@ IntSet operator-(const IntSet& first, const IntSet& second)
         retVal->insert(i);
     }
     
+    //save the IntSet in another variable, and delete the retVal pointer
+    IntSet rv = *retVal;
+    delete retVal;
+    retVal = nullptr;
+
     //return IntSet
-    return *retVal;
+    return rv;
 }
 
 //---------------------------------------------------------------------------
