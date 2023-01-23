@@ -12,7 +12,7 @@ class NodeData {
     friend ostream& operator<<(ostream&, const NodeData&);
 
 public:
-    NodeData();          // default constructor, data is set to an empty string
+    NodeData();                   // default constructor, data is set to an empty string
     ~NodeData();
     NodeData(const string&);      // data is set equal to parameter
     NodeData(const NodeData&);    // copy constructor

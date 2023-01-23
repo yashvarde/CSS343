@@ -128,7 +128,7 @@ void buildTree(BinTree& t, ifstream& infile) {
 
         // in an object-oriented program, change to setData() for reading 
         NodeData* ptr = new NodeData(s);
-
+        
         bool success = t.insert(ptr);
         if (!success) {
             delete ptr;                       // duplicate case, not inserted 
