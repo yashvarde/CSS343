@@ -110,6 +110,7 @@ int main() {
 // Since there is some work to do before the actual insert that is specific to 
 // the client problem (tree class does not know about the data that it holds), 
 // building a tree is not a member function.  It's a global function. 
+
 void buildTree(BinTree& t, ifstream& infile) {
     string s;
 
@@ -128,7 +129,7 @@ void buildTree(BinTree& t, ifstream& infile) {
 
         // in an object-oriented program, change to setData() for reading 
         NodeData* ptr = new NodeData(s);
-        
+
         bool success = t.insert(ptr);
         if (!success) {
             delete ptr;                       // duplicate case, not inserted 
@@ -140,6 +141,7 @@ void buildTree(BinTree& t, ifstream& infile) {
 //----------------------------------------------------------------------------
 // initArray 
 // initialize the array of NodeData* to hold nullptr 
+
 void initArray(NodeData* ndArray[]) {
     for (int i = 0; i < ARRAYSIZE; i++) {
         ndArray[i] = nullptr;

@@ -210,49 +210,42 @@ if (*ptr->data < *current->data)
     // Assumes the NodeData object has been instantiated and passed into insert()
     // Memory is fully allocated and inititalized
  */
-bool BinTree::insert(NodeData* dataptr) {
-    Node* ptr = new Node;
-    NodeData invalid("");
-
-    if (ptr == nullptr)
-    {
-        return false;                // out of memory
-    }
-    
-    ptr->data = dataptr;
-    ptr->left = ptr->right = nullptr;
+bool BinTree::insert(NodeData* ND) {
+    bool inserted = false;                    // whether inserted yet
 
     if (isEmpty()) {
-        root = ptr;
+        root = new Node;
+        root->data = ND;
+        root->left = nullptr;
+        root->right = nullptr;
+        inserted = true;
     }
     else {
-        if (root->data == nullptr)
-        {
-            delete ptr;
-            ptr = nullptr;
-            return false;                //empty node invalid
-        }
-
         Node* current = root;                     // walking pointer
-        bool inserted = false;                    // whether inserted yet
-
+        
         // Traverse tree; if item is less than current item, insert in 
         // left subtree, otherwise insert in right subtree
-        bool nodeCheck = current != nullptr && ptr != nullptr;
-        bool nodeDataCheck = current->data != nullptr && ptr->data != nullptr;
+        while ( !inserted &&
+                (current != nullptr) &&
+                (current->data != nullptr)) {
 
-        while (!inserted && nodeCheck && nodeDataCheck) {
-            if (*ptr->data < *current->data) {
+            if (*ND < *current->data) {
                 if (current->left == nullptr) {     // insert left
-                    current->left = ptr;
+                    current->left = new Node;
+                    current->left->data = ND;
+                    current->left->left = nullptr;
+                    current->left->right = nullptr;
                     inserted = true;
                 }
                 else
                     current = current->left;         // one step left
             }
-            else if (*ptr->data > *current->data) { 
+            else if (*ND > *current->data) {
                 if (current->right == nullptr) {    // insert right
-                    current->right = ptr;
+                    current->right = new Node;
+                    current->right->data = ND;
+                    current->right->left = nullptr;
+                    current->right->right = nullptr;
                     inserted = true;
                 }
                 else
@@ -260,18 +253,16 @@ bool BinTree::insert(NodeData* dataptr) {
                     current = current->right;        // one step right
                 }
             }
-            else //*ptr->data == *current->data
-            {
-                delete ptr;
-                return false;
+            else if (*ND == *current->data) {
+                current = nullptr; // exists
             }
-
-            //update whether the new pointers are valid for the while loop
-            nodeCheck = current != nullptr && ptr != nullptr;
-            nodeDataCheck = current->data != nullptr && ptr->data != nullptr;
+            else {
+                current = nullptr; // unknown
+            }
         }
     }
-    return true;
+
+    return inserted;
 }
 
 //---------------------------------------------------------------------------
@@ -540,15 +531,12 @@ void BinTree::bstreeToArrayHelper(Node* node, NodeData* arr[], int& i)
     bstreeToArrayHelper(node->left, arr, i);   
 
     //add root node data of tree to the array
-    arr[i++] = node->data; 
-    node->data = nullptr;
+    arr[i] = new NodeData;
+    *arr[i] = *node->data;
+    i++;
 
     //add right subtree data to the array
     bstreeToArrayHelper(node->right, arr, i);
-
-    //sever the link between each node and its children
-    node->left = nullptr;
-    node->right = nullptr;
 }
 
 
@@ -570,19 +558,23 @@ void BinTree::arrayToBSTree(NodeData* arr[])
 
     //convert array to binary search tree
     root = arrayToBSTreeHelper(arr, 0, size - 1);
+
+    for (int i = 0; i < size; i++) {
+        delete arr[i];
+    }
 }
 
 
 BinTree::Node* BinTree::arrayToBSTreeHelper(NodeData* arr[], int left, int right)
 {
     //return null value if the left index exceeds the right
-    if (left > right)
+    if (left > right) {
         return nullptr;
+    }
 
     // Get the middle element and make it root
     int mid = (left + right) / 2;
 
-    //create a new node
     Node* node = new Node();
     node->data = new NodeData;
     *node->data = *arr[mid];
@@ -654,8 +646,9 @@ BinTree::Node* BinTree::makeEmptyHelper(Node* root) //helper for MakeEmpty()
     delete root->data;
     root->data = nullptr;
     delete root;
+    root = nullptr;
 
-    return nullptr;
+    return root;
 }
 
 //---------------------------------------------------------------------------
