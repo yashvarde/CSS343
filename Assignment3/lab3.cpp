@@ -19,6 +19,7 @@
 using namespace std;
 
 int main() {
+
     // part 1
     ifstream infile1("data31.txt");
     if (!infile1) {
@@ -38,7 +39,7 @@ int main() {
         // may be other calls to display 
     }
     infile1.close();
-/*
+
     // part 2 
     ifstream infile2("data32.txt");
     if (!infile2) {
@@ -56,7 +57,7 @@ int main() {
         G.depthFirstSearch();    // find and display depth-first ordering to cout
     }
     infile2.close();
-    */
+    
     cout << endl;
    
     return 0;

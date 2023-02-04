@@ -13,17 +13,17 @@ GraphM::GraphM()
     {
         for (int j = 0; j < MAXNODES; j++)
         {
-            //set all dists to INF
-            T[i][j].dist = INF;
+            //set all values in adjacency list to infinity
+            C[i][j] = INF;
 
+            //set all dists to INF initially.
+            T[i][j].dist = INF;
+            
             //set all visited nodes to unvisited
             T[i][j].visited = false;
 
             //set all paths to zero
             T[i][j].path = 0;
-
-            //set all adjacency costs to INF
-            C[i][j] = 0;
         }
     }
 }
@@ -39,25 +39,31 @@ GraphM::GraphM()
 void GraphM::buildGraph(istream& infile)
 {
     //first value = number of nodes in graph
-    int n;
-    infile >> n;
+    infile >> size;
 
-    //do not build graph if the number of nodes exceeds the max capacity
-    if (n > MAXNODES || infile.eof())
+    //do not build graph if eof or number of nodes exceeds the max capacity
+    if (infile.eof())
     {
         return;
     }
+    
+    //only read up to the max capacity if size exceeds limit
+    if (size > MAXNODES)
+    {
+        size = MAXNODES;
+    }
 
     infile.get();       //reads the end of line character
-    size = n;
+    size = size;
 
     //next few lines = data labels for the graph
-    for (int i = 1; i <= n; i++)
+    for (int i = 1; i <= size; i++)
     {
         //try reading in text from file
-        if (!data[i].setData(infile))
+        if (infile.eof() || !data[i].setData(infile))
         {
             cout << "Couldn't set data from file" << endl;
+            break;
         }
     }
 
@@ -67,6 +73,12 @@ void GraphM::buildGraph(istream& infile)
         //convert file line to an edge
         Edge edge;
         infile >> edge;
+        
+        //end the loop if end of file
+        if (infile.eof())
+        {
+            break;
+        }
 
         bool emptyEdge = edge.start == 0 && edge.end == 0 && edge.cost == 0;
 
@@ -77,7 +89,7 @@ void GraphM::buildGraph(istream& infile)
         }
 
         //insert the edge into the graph
-        insertEdge(edge);
+        insertEdge(edge); 
     }
 }
 
@@ -101,18 +113,17 @@ void GraphM::findShortestPath()
         //dijkstra's shortest path for a particular node
         for (int i = 1; i <= size; i++) {
 
-            // Find the not yet visited adjacent node v with the minimum distance
-            int v = 1;
+            // Find the not yet visited node v with the minimum distance
+            int v = 0;
             int minDist = INF;
             for (int index = 1; index <= size; index++)
             {
+                bool shorterPath = minDist > T[source][index].dist;
+                bool visited = T[source][index].visited;
                 if (T[source][index].dist == INF && C[source][index] > 0)
                 {
                     T[source][index].dist = C[source][index];
                 }
-
-                bool visited = T[source][index].visited;
-                bool shorterPath = minDist > T[source][index].dist;
 
                 if (!visited && shorterPath)
                 {
@@ -129,7 +140,7 @@ void GraphM::findShortestPath()
             for (int w = 1; w <= size; w++)
             {
                 //skip nonadjacent nodes
-                bool adjacent = (C[v][w] != 0);
+                bool adjacent = (C[v][w] != INF);
                 if (!adjacent)
                 {
                     continue;
@@ -142,7 +153,7 @@ void GraphM::findShortestPath()
                     int currentDist = T[source][w].dist;
                     int newDist = T[source][v].dist;
 
-                    //DO NOT add a positive integer to INF -> causes negative result
+                    //DO NOT add a positive integer to INF -> negative result
                     if (newDist != INF)
                     {
                         newDist += C[v][w];
@@ -162,6 +173,27 @@ void GraphM::findShortestPath()
     }
 }
 
+//---------------------------------------------------------------------------
+/// exploreAdjacentNodes()
+/// explores and visits different nodes to find the closest node (w)
+/// Precondition: source node and intermediate node (v) must exist
+/// Postcondition: finds a shorter route to get from the source to w
+void GraphM::exploreAdjacentNodes(int source, int v)
+{
+    for (int w = 1; w <= size; w++)
+    {
+        //skip nonadjacent nodes
+        bool adjacent = (C[v][w] != INF);
+        bool shorterDistance = T[source][w].dist > T[source][v].dist + C[v][w];
+        if (adjacent && shorterDistance)
+        {
+            T[source][w].dist = T[source][v].dist + C[v][w];
+            T[source][w].path = v;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
 /// visitNode()
 /// sets the given column's node as visited
 /// makes all rows beneath, and including the existing row, as visited
@@ -174,6 +206,7 @@ void GraphM::visitNode(int r, int c)
     }
 }
 
+//---------------------------------------------------------------------------
 /// recoverPath()
 /// resets the T array
 /// Precondition: none
@@ -257,10 +290,10 @@ void GraphM::displayAll() const
 {
     //display titles
     cout << "Description ";
-    cout << setw(20) << "From node";
-    cout << setw(15) << "To node";
-    cout << setw(15) << "Dijkstra's";
-    cout << setw(5) << "Path" << endl;
+    cout << setw(25) << "From node    ";
+    cout << setw(10) << "To node   ";
+    cout << setw(10) << "Dijkstra's ";
+    cout << setw(10) << "Path" << endl;
 
     //display the dijkstra path for each of the nodes in the graph
     for (int i = 1; i <= size; i++)
@@ -283,6 +316,7 @@ void GraphM::displayAll() const
             }
         }
     }
+    cout << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -293,26 +327,28 @@ void GraphM::displayAll() const
 void GraphM::display(int start, int end) const
 {
     //display source and destination
-    cout << setw(24) << start << setw(19) << end;
+    cout << setw(30) << start << setw(10) << end;
 
     //display the cost (or "---" if it is INF)
     if (T[start][end].dist == INF)
     {
-        cout << setw(15) << "---" << endl;
+        cout << setw(10) << "---" << endl;
         return;
     }
     else
     {
-        cout << setw(15) << T[start][end].dist;
+        cout << setw(10) << T[start][end].dist;
     }
 
     //display path from start node to end node
+    cout << "        ";
     displayPath(start, end);
 
     //end the line
     cout << endl;
 }
 
+//---------------------------------------------------------------------------
 /// displayPath()
 /// helper function that displays all nodes that form the path from start 
 /// to end
@@ -332,6 +368,7 @@ void GraphM::displayPath(int start, int end) const
     cout << setw(8) << end;
 }
 
+//---------------------------------------------------------------------------
 /// operator >>
 /// overloaded input stream operator for Edge
 istream& operator>>(istream& stream, Edge& edge)
