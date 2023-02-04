@@ -77,7 +77,7 @@ void GraphL::buildGraph(istream& infile) {
     for (;;) {
         infile >> fromNode;
         infile >> toNode;
-        cout << fromNode << " " << toNode << endl;
+
         if (infile.eof() || (fromNode == 0 && toNode == 0))
         {
              return;     // end of edge data

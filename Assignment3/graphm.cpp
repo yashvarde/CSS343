@@ -102,31 +102,37 @@ void GraphM::findShortestPath()
     for (int source = 1; source <= size; source++) 
     { 
         T[source][source].dist = 0;
+        cout << source << " is visited" << endl;
         T[source][source].visited = true;
 
         //dijkstra's shortest path for a particular node
+        int v = 1;
         for (int i = 1; i <= size; i++) {
 
             // Find the not yet visited node v with the minimum distance
-            int v = 1;
             int minDist = INF;
             for (int index = 1; index <= size; index++)
             {
                 bool shorterPath = minDist > C[source][index];
+                if (shorterPath) {cout << "shorter path via " << index << endl;}
                 bool visited = T[source][index].visited;
-                if (T[source][index].dist == INF && shorterPath)
+                if (visited) { cout << index << " already visited" << endl; }
+                if (shorterPath)
                 {
-                    T[source][index].dist = C[source][index];
-                    v = index;
-                }
-                if (!visited && shorterPath)
-                {
-                    minDist = T[source][index].dist;
+                    if (T[source][index].dist == INF)
+                    {
+                        T[source][index].dist = C[source][index];
+                    }
+                    if (!visited)
+                    {
+                        minDist = T[source][index].dist;
+                    }
                     v = index;
                 }
             }
 
             // mark v as visited
+            cout << v << " is visited" << endl;
             T[source][v].visited = true;
             T[source][v].path = source;
 
@@ -152,19 +158,23 @@ void GraphM::findShortestPath()
                     {
                         newDist += C[v][w];
                     }
-
+                    cout << "T[" << source << "] [" << v << "] + C[" << v << "] [ " << w << "] = " << newDist << endl;
+                    cout << "T[" << source << "] [" << w << "] = " << currentDist;
+                    if (currentDist > newDist) { cout << "adjust" << endl; }
                     T[source][w].dist = min(currentDist, newDist);
 
                     // If going through v is shorter, set .path to v
                     if (T[source][w].dist == newDist)
                     {
+                        cout << w << " is visited" << endl;
                         T[source][w].visited = true;
                         T[source][w].path = v;
+                        v = w;
                     }
                 }
             }
         }
-    }
+    } 
 }
 
 //---------------------------------------------------------------------------
