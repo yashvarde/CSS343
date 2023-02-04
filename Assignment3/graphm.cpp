@@ -1,3 +1,19 @@
+//----------------------------------------------------------------------------
+// class GraphM
+// Developer: Yash Varde
+//----------------------------------------------------------------------------
+// ADT GraphM: A class consisting of up to 100 nodes
+// -- Determines the shortest path from the start node to each of the others.
+// -- Reads from the text file and generates a graph based on the input.
+// -- size represents the number of nodes in the graph, not the capacity (100)
+// 
+// Implementation and Assumptions:
+// -- Dijkstra's shortest algorithm is used to determine the shortest paths.
+// -- Uses an adjacency matrix C[][] for representing the cost between nodes.
+// -- TableType stores key information necessary for Dijstra's algorithm.
+// -- **make sure enter has been pressed after the last line of the input file
+//----------------------------------------------------------------------------
+
 #include "graphm.h"
 
 //---------------------------------------------------------------------------
@@ -159,7 +175,7 @@ void GraphM::findShortestPath()
                     int currentDist = T[source][w].dist;
                     int newDist = T[source][v].dist;
 
-                    //DO NOT add a positive integer to INF -> causes negative result
+                    //DO NOT add a positive integer to INF -> negative result
                     if (newDist != INF && C[v][w] != INF)
                     {
                         newDist += C[v][w];
@@ -310,14 +326,4 @@ void GraphM::displayPath(int start, int end) const
     {
         cout << setw(8) << end;
     }
-}
-
-//---------------------------------------------------------------------------
-/// operator >>
-/// overloaded input stream operator for Edge
-istream& operator>>(istream& stream, Edge& edge)
-{
-    //read in start, end, and cost values into edge
-    stream >> edge.start >> edge.end >> edge.cost;
-    return stream;
 }

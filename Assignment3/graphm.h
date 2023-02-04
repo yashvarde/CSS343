@@ -25,20 +25,6 @@
 
 using namespace std;
 
-//---------------------------------------------------------------------------
-//struct Edge
-//represents a directed edge from one node to another
-//consists of a start, an end, and a cost
-struct Edge {
-    //variables
-    int start = -1;         //the node where the edge starts from
-    int end = -1;           //the node that the edge ends at
-    int cost = -1;          //the cost of going from the start to the end
-
-    //overloaded input stream operator
-    friend istream& operator >> (istream&, Edge&);
-};
-
 class GraphM
 {
 public:
@@ -53,7 +39,7 @@ public:
     /// Precondition: file data must be formatted such that:
     ///                - the first value represents the number of nodes
     ///                - text represents titles for graph locations
-    ///                - integer triplets are ordered: (source, destination, cost)
+    ///                - int triplets are ordered: source, destination, cost
     /// Postcondition: the graph is created according to the file's data
     void buildGraph(istream& infile);
 

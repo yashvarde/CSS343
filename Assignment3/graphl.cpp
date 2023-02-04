@@ -1,5 +1,19 @@
+//----------------------------------------------------------------------------
+// class GraphL
+// Developer: Yash Varde
+//----------------------------------------------------------------------------
+// ADT GraphL: A graph class that allows up to 100 nodes
+// -- can display the graph by doing a depth-first search.
+// -- can build a graph by reading a properly formatted input text file
+// -- displays nodes and edges for each node in ascending order
+// 
+// Implementation and Assumptions:
+// -- not more than 100 nodes will be provided.
+// -- Each node in the graph will have a list of adjacent nodes
+// -- **make sure enter has been pressed after the last line of the input file
+//----------------------------------------------------------------------------
+
 #include "graphl.h"
-#include "dbgwait.h"
 
 // Uses getline from string class, included in nodedata.h .
 // Be sure to include nodedata.h which includes <string> .
@@ -57,7 +71,7 @@ void GraphL::buildGraph(istream& infile) {
     //makeEmpty();                   // include if dynamic memory anywhere
 
     infile >> size;                // read the number of nodes
-    //infile.get();
+    
     if (infile.eof()) return;      // stop reading if no more data
 
     // explanation to student: when you want to read a string after an int, 
@@ -105,7 +119,7 @@ void GraphL::displayGraph()
     for (int i = 1; i <= size; i++)
     {
         cout << setw(2) << "Node " << i;
-        cout << "      " << graphNodeList[i].data << endl;
+        cout << "                " << graphNodeList[i].data << endl;
 
         list<int> adjacencyList = graphNodeList[i].adjacentNodes;
         list<int>::iterator it = adjacencyList.begin();
@@ -137,7 +151,7 @@ void GraphL::depthFirstSearch()
             dfs(v);
         }
     }
-    cout << endl;
+    cout << endl << endl;
 }
 
 //-----------------------------------------------------------------------------
