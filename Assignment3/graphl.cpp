@@ -57,7 +57,7 @@ void GraphL::buildGraph(istream& infile) {
     //makeEmpty();                   // include if dynamic memory anywhere
 
     infile >> size;                // read the number of nodes
-    infile.get();
+    //infile.get();
     if (infile.eof()) return;      // stop reading if no more data
 
     // explanation to student: when you want to read a string after an int, 
@@ -77,6 +77,12 @@ void GraphL::buildGraph(istream& infile) {
     for (;;) {
         infile >> fromNode;
         infile >> toNode;
+
+        //skip negative values 
+        if (fromNode < 0 || toNode < 0)
+        {
+            continue;
+        }
 
         if (infile.eof() || (fromNode == 0 && toNode == 0))
         {

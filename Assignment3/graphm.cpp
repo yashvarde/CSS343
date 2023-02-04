@@ -42,7 +42,7 @@ void GraphM::buildGraph(istream& infile)
     infile >> size;
 
     //do not build graph if eof or number of nodes exceeds the max capacity
-    if (infile.eof() || size >= MAXNODES)
+    if (infile.eof() || size >= MAXNODES || size <= 0)
     {
         return;
     }
@@ -63,18 +63,24 @@ void GraphM::buildGraph(istream& infile)
     //read file values into the graph
     for (;;)
     {
-        //convert file line to an edge
+        //read file line into edge variables
         int start;
         int end; 
         int cost;
         infile >> start;
         infile >> end; 
         infile >> cost;
-        
+
         //end the loop if end of file
         if (infile.eof())
         {
             break;
+        }
+
+        //skip negative values 
+        if (start < 0 || end < 0 || cost < 0)
+        {
+            continue;
         }
 
         bool emptyEdge = (start == 0) && (end == 0) && (cost == 0);
@@ -300,7 +306,10 @@ void GraphM::displayPath(int start, int end) const
     }
 
     //print the last node
-    cout << setw(8) << end;
+    if (end != 0)
+    {
+        cout << setw(8) << end;
+    }
 }
 
 //---------------------------------------------------------------------------
