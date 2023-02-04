@@ -31,11 +31,12 @@ int main() {
     for (;;) {
         GraphM G;
         G.buildGraph(infile1);
+        
         if (infile1.eof())
             break;
         G.findShortestPath();
         G.displayAll();           // display shortest distance, path to cout
-        G.display(3, 1);           // display dist/path from node 3 to 1 to cout
+        G.display(3, 1);           // display dist/path from node 3 to 1 to 
         // may be other calls to display 
     }
     infile1.close();

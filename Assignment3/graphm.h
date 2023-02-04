@@ -70,14 +70,14 @@ public:
     /// inserts the provided edge into the graph
     /// Precondition: the edge must contain nonnegative integer values
     /// Postcondition: returns true if the edge was successfully inserted
-    bool insertEdge(const Edge& edge);
+    bool insertEdge(int, int, int);
 
     //-------------------------------------------------------------------------
     /// removeEdge()
     /// removes the specified edge from the graph
     /// Precondition: the edge must contain nonnegative integer values
     /// Postcondition: returns true if the edge was successfully removed
-    bool removeEdge(const Edge& edge);
+    bool removeEdge(int, int, int);
    
     //-------------------------------------------------------------------------
     /// displayAll()
@@ -113,34 +113,6 @@ private:
     /// helper function that displays all nodes that form the path from start 
     /// to end
     void displayPath(int, int) const;   
-
-    //-------------------------------------------------------------------------
-    /// visitNode()
-    /// sets the given column's node as visited
-    /// Precondition: inputs must be valid row and column indexes
-    /// Postcondition: sets all rows beneath given row of given column to true
-    void visitNode(int, int);
-
-    //-------------------------------------------------------------------------
-    /// initializeRow()
-    /// resets a row of the T array
-    /// Precondition: none
-    /// Postcondition: for T[i][j], dist = infinity, visited = false, path = 0.
-    void initializeRow(int);
-    
-    //-------------------------------------------------------------------------
-    /// findMinNode()
-    /// returns the closest adjacent node from a given source node
-    /// Precondition: source node must exist
-    /// Postcondition: returns an integer corresponding to the closest node
-    int findMinNode(int);
-    
-    //-------------------------------------------------------------------------
-    /// exploreAdjacentNodes()
-    /// explores and visits different nodes to find the closest node (w)
-    /// Precondition: source node and intermediate node (v) must exist
-    /// Postcondition: finds a shorter route to get from the source to w
-    void exploreAdjacentNodes(int, int);
 };
 
 #endif

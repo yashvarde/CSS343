@@ -42,22 +42,15 @@ void GraphM::buildGraph(istream& infile)
     infile >> size;
 
     //do not build graph if eof or number of nodes exceeds the max capacity
-    if (infile.eof())
+    if (infile.eof() || size >= MAXNODES)
     {
         return;
     }
-    
-    //only read up to the max capacity if size exceeds limit
-    if (size > MAXNODES)
-    {
-        size = MAXNODES;
-    }
 
     infile.get();       //reads the end of line character
-    size = size;
 
     //next few lines = data labels for the graph
-    for (int i = 1; i <= size; i++)
+    for (int i = 1; i <= size + 1; i++)
     {
         //try reading in text from file
         if (infile.eof() || !data[i].setData(infile))
@@ -71,8 +64,12 @@ void GraphM::buildGraph(istream& infile)
     for (;;)
     {
         //convert file line to an edge
-        Edge edge;
-        infile >> edge;
+        int start;
+        int end; 
+        int cost;
+        infile >> start;
+        infile >> end; 
+        infile >> cost;
         
         //end the loop if end of file
         if (infile.eof())
@@ -80,7 +77,7 @@ void GraphM::buildGraph(istream& infile)
             break;
         }
 
-        bool emptyEdge = edge.start == 0 && edge.end == 0 && edge.cost == 0;
+        bool emptyEdge = (start == 0) && (end == 0) && (cost == 0);
 
         //end the loop when the file reaches 0 0 0
         if (emptyEdge)
@@ -89,7 +86,7 @@ void GraphM::buildGraph(istream& infile)
         }
 
         //insert the edge into the graph
-        insertEdge(edge); 
+        insertEdge(start, end, cost); 
     }
 }
 
@@ -102,29 +99,26 @@ void GraphM::buildGraph(istream& infile)
 void GraphM::findShortestPath()
 {
     //find shortest path from each of the nodes
-    for (int source = 1; source <= size; source++) {
-
-        //initialize the row in T array before filling it
-        initializeRow(source);
-
-        //mark source as visited
+    for (int source = 1; source <= size; source++) 
+    { 
+        T[source][source].dist = 0;
         T[source][source].visited = true;
 
         //dijkstra's shortest path for a particular node
         for (int i = 1; i <= size; i++) {
 
             // Find the not yet visited node v with the minimum distance
-            int v = 0;
+            int v = 1;
             int minDist = INF;
             for (int index = 1; index <= size; index++)
             {
-                bool shorterPath = minDist > T[source][index].dist;
+                bool shorterPath = minDist > C[source][index];
                 bool visited = T[source][index].visited;
-                if (T[source][index].dist == INF && C[source][index] > 0)
+                if (T[source][index].dist == INF && shorterPath)
                 {
                     T[source][index].dist = C[source][index];
+                    v = index;
                 }
-
                 if (!visited && shorterPath)
                 {
                     minDist = T[source][index].dist;
@@ -153,8 +147,8 @@ void GraphM::findShortestPath()
                     int currentDist = T[source][w].dist;
                     int newDist = T[source][v].dist;
 
-                    //DO NOT add a positive integer to INF -> negative result
-                    if (newDist != INF)
+                    //DO NOT add a positive integer to INF -> causes negative result
+                    if (newDist != INF && C[v][w] != INF)
                     {
                         newDist += C[v][w];
                     }
@@ -174,73 +168,12 @@ void GraphM::findShortestPath()
 }
 
 //---------------------------------------------------------------------------
-/// exploreAdjacentNodes()
-/// explores and visits different nodes to find the closest node (w)
-/// Precondition: source node and intermediate node (v) must exist
-/// Postcondition: finds a shorter route to get from the source to w
-void GraphM::exploreAdjacentNodes(int source, int v)
-{
-    for (int w = 1; w <= size; w++)
-    {
-        //skip nonadjacent nodes
-        bool adjacent = (C[v][w] != INF);
-        bool shorterDistance = T[source][w].dist > T[source][v].dist + C[v][w];
-        if (adjacent && shorterDistance)
-        {
-            T[source][w].dist = T[source][v].dist + C[v][w];
-            T[source][w].path = v;
-        }
-    }
-}
-
-//---------------------------------------------------------------------------
-/// visitNode()
-/// sets the given column's node as visited
-/// makes all rows beneath, and including the existing row, as visited
-void GraphM::visitNode(int r, int c)
-{
-    for (int i = r; i < size; i++)
-    {
-        //consider the node as visited after being encountered at row r
-        T[i][c].visited = true;
-    }
-}
-
-//---------------------------------------------------------------------------
-/// recoverPath()
-/// resets the T array
-/// Precondition: none
-/// Postcondition: for T[i][j], dist = INF, visited = false, path = 0.
-void GraphM::initializeRow(int r)
-{
-    for (int i = 1; i < size; i++)
-    {
-        //set all dists to INF
-        T[r][i].dist = INF;
-
-        //set all visited nodes to unvisited
-        T[r][i].visited = false;
-
-        //set all paths to zero
-        T[r][i].path = 0;
-    }
-
-    //set source to source distance to 0;
-    T[r][r].dist = 0;
-}
-
-//---------------------------------------------------------------------------
 /// insertEdge()
-/// inserts the provided edge into the graph
+/// inserts the provided edge into the graph without modifying the parameter
 /// Precondition: the edge must contain nonnegative integer values
 /// Postcondition: returns true if the edge was successfully inserted
-bool GraphM::insertEdge(const Edge& edge)
+bool GraphM::insertEdge(int start, int end, int cost)
 {
-    //extract values from edge structure
-    int start = edge.start;
-    int end = edge.end;
-    int cost = edge.cost;
-
     //have a variable for checking whether cost has been changed
     bool changed = false;
 
@@ -257,16 +190,11 @@ bool GraphM::insertEdge(const Edge& edge)
 
 //---------------------------------------------------------------------------
 /// removeEdge()
-/// removes the specified edge from the graph
+/// removes the specified edge from the graph without modifying the parameter
 /// Precondition: the edge must contain nonnegative integer values
 /// Postcondition: returns true if the edge was successfully removed
-bool GraphM::removeEdge(const Edge& edge)
+bool GraphM::removeEdge(int start, int end, int cost)
 {
-    //extract values from edge structure
-    int start = edge.start;
-    int end = edge.end;
-    int cost = edge.cost;
-
     //have a variable for checking whether cost has been changed
     bool changed = false;
 
@@ -358,7 +286,7 @@ void GraphM::displayPath(int start, int end) const
     int node = end;
 
     //display the path from the start to the intermediate node
-    if (node != start)
+    if (node != start && start > 0 && end > 0)
     {
         node = T[start][end].path;
         displayPath(start, node);

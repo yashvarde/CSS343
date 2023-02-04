@@ -1,4 +1,5 @@
 #include "graphl.h"
+#include "dbgwait.h"
 
 // Uses getline from string class, included in nodedata.h .
 // Be sure to include nodedata.h which includes <string> .
@@ -53,10 +54,10 @@ GraphL::~GraphL()
 //Postcondition: titles and edges are added to the graph
 void GraphL::buildGraph(istream& infile) {
     int fromNode, toNode;          // from and to node ends of edge
-
     //makeEmpty();                   // include if dynamic memory anywhere
 
     infile >> size;                // read the number of nodes
+    infile.get();
     if (infile.eof()) return;      // stop reading if no more data
 
     // explanation to student: when you want to read a string after an int, 
@@ -74,8 +75,13 @@ void GraphL::buildGraph(istream& infile) {
 
     // read the edge data and add to the adjacency list
     for (;;) {
-        infile >> fromNode >> toNode;
-        if (fromNode == 0 && toNode == 0) return;     // end of edge data
+        infile >> fromNode;
+        infile >> toNode;
+        cout << fromNode << " " << toNode << endl;
+        if (infile.eof() || (fromNode == 0 && toNode == 0))
+        {
+             return;     // end of edge data
+        } 
 
         // insert a valid edge into the adjacency edge STL list for fromNode
         graphNodeList[fromNode].adjacentNodes.push_back(toNode);
